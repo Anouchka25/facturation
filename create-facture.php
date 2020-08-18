@@ -1,10 +1,8 @@
 <?php
 session_start();
-$pseudo_session = $_SESSION['pseudo'];
-
-if(isset($_SESSION['pseudo']) && isset($_SESSION['password'])){
+if(isset($_SESSION['pseudo']) && isset($_SESSION['id_membre'])){
+    $id_membre = $_SESSION['id_membre'];
 ?>
-
 <!DOCTYPE html>
 <html>
     <head>
@@ -17,8 +15,9 @@ if(isset($_SESSION['pseudo']) && isset($_SESSION['password'])){
 
     <?php 
        
-       echo "Bienvenue à toi ".$_SESSION['pseudo'];
+       echo "Bienvenue à toi ".$_SESSION['pseudo'] ;
     ?>
+    <form action="<?= $_SERVER['PHP_SELF'] ?> " method="post">
     <fieldset>
 <legend>Créer votre facture</legend>
 <table border="0" >
@@ -78,48 +77,41 @@ Envoyer " /></td>
 
     </body>
     </html>
-
     <?php
     }
     else {echo "Vous n'êtes pas autorisé à visiter cette page <br/>";
           echo "<a href = \"connexion.php\">Merci de vous connecter</a> ";}
     ?>
-
     <?php
-    //Etape 1: Inclusion des paramètres de connexion
+    //Inclusion des paramètres de connexion
 include_once('myparam.inc.php');
 
-//Etape 2: Connexion au serveur de base de données MySQL
+//Connexion au serveur de base de données MySQL
 $idcom = new mysqli(MYHOST, MYUSER, MYPASS, "facturation");
 
-//Etape 3: Test de la connexion
+//Test de la connexion
 if(!$idcom){
     echo "Connexion impossible";
     exit(); //On arrete tout, on sort du script
 }
-//On vérifie que tous les champs du formulaire sont renseignés, si un champs vide on met la variable $formValid à true/
-$formValid = false;
-foreach ($_POST as $cle => $valeur) {
-    if (empty($_POST[$cle])) {
-        $formValid = true;
-    }
-}
-if ($formValid) {
-    echo "Veuillez remplir tous les champs du formulaire !";
-} else {
-    //Faire la 1re requête de récupérer l'id de l'utilisateur connecté
-    $result_pseudo = $idcom->query("SELECT id_membre, pseudo FROM membres WHERE pseudo = '$pseudo_session';");
-    
-    $coord = $result_pseudo->fetch_row();
-    
-    $id_membre = $coord['id_membre'];
 
-    //$_SESSION['id_membre'] = $coord['id_membre'];
+if(!empty($_POST['num']) 
+&& !empty($_POST['numtva'])
+&& !empty($_POST['client'])
+&& !empty($_POST['mailclient'])
+&& !empty($_POST['datefacture'])
+&& !empty($_POST['facturede'])
+&& !empty($_POST['designation'])
+&& !empty($_POST['quantite'])
+&& !empty($_POST['prixht'])
+&& !empty($_POST['taxe'])
+&& !empty($_POST['conditions'])){
 
     $num = $idcom->escape_string($_POST['num']);
     $numtva = $idcom->escape_string($_POST['numtva']);
     $client = $idcom->escape_string($_POST['client']);
     $mailclient = $idcom->escape_string($_POST['mailclient']);
+    $datefacture = $_POST['datefacture'];
     $facturede = $idcom->escape_string($_POST['facturede']);
     $designation = $idcom->escape_string($_POST['designation']);
     $quantite = $idcom->escape_string($_POST['quantite']);
@@ -127,21 +119,23 @@ if ($formValid) {
     $taxe = $idcom->escape_string($_POST['taxe']);
     $conditions = $idcom->escape_string($_POST['conditions']);
 
-    $requete = "INSERT INTO facture(num,numtva,client, mailclient,datefacture,facturede,designation, quantite, prixht, taxe, conditions, id_membre    ) 
+    $requete = "INSERT INTO facture(num, numtva, client, mailclient, datefacture, facturede, designation, quantite, prixht, taxe, conditions, id_membre) 
     VALUES ('$num', '$numtva', '$client', 
-    '$mailclient', '$facturede', '$designation', 
+    '$mailclient', $datefacture, '$facturede', '$designation', 
     '$quantite', '$prixht', '$taxe', '$conditions', '$id_membre')";
 
     $result = $idcom->query($requete);
 
 //On vérifie si la requete a bien été exécuté/recue au niveau du serveur mysql
-   if($result){
-    echo "Vous avez bien été enregistré au numéro :.$idcom->insert_id'";
-}
-else { echo "Erreur ".$idcom->error;}
+    if($result){
+    echo "Votre facture a bien été enregistrée au numéro :".$idcom->insert_id;
+    }
+    else { echo "Erreur ".$idcom->error;}
 
 //On ferme la connexion
 $idcom->close();
-     }
+}
+else {echo "Veuillez remplir la formulaire"; }
+     
 ?>
     

@@ -16,6 +16,7 @@
     <?php
     $ps = "lucie25";
     $pass = "toto";
+    $id_membre = 1;
     
     if(!empty($_POST['pseudo']) && !empty($_POST['password'])){
         if($_POST['pseudo'] == $ps && $_POST['password'] == $pass){
@@ -24,6 +25,7 @@
         session_start(); //on créé une session
         $_SESSION['pseudo'] = $ps;
         $_SESSION['password'] = $pass;
+        $_SESSION['id_membre'] = $id_membre;
 
         header('Location: create-facture.php'); //Une fois connecté, on redirige l'utilisateur vers son espace client
     }
