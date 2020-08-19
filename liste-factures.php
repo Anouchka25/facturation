@@ -46,7 +46,10 @@ if(!$idcom){
             <td>".$row['num']."</td>
             <td>".$row['client']."</td>
             <td>".$row['datefacture']."</td>
-            <td> <a href=\"detail-facture.php?=".$row['id']."\">Details</a></td>
+            <td> 
+            <a href=\"detail-facture.php?=".$row['id']."\">Details</a><br/>
+            <a href=\"imprimer-facture.php?=".$row['id']."\">Télécharger au format PDF</a>
+            </td>
             </tr>";
             //$_SESSION['id_facture'] = $row['id'];
     }
@@ -59,7 +62,8 @@ echo "</table>";
 
 
 ?>
-
+<br/>
+<a href="imprimer-facture.php">Créer une facture</a>
 </body>
 </html>
 <?php
